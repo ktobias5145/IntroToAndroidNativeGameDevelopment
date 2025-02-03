@@ -3,6 +3,7 @@ package com.kt.example.introintogamesandgraphics
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.core.content.ContextCompat
@@ -10,13 +11,29 @@ import androidx.core.content.ContextCompat
 class Game(context: Context?) : SurfaceView(context) , SurfaceHolder.Callback{
     private val gameLoop: GameLoop
     private val internalContext:Context
+    private val player:Player
     init{
         val surfaceHolder: SurfaceHolder = holder
         surfaceHolder.addCallback(this)
          gameLoop = GameLoop(this, surfaceHolder)
+        player = Player(this.context, 500.0,500.0,30.0)
         internalContext = this.context
         isFocusable = true
     }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        //Handle touch events
+        when(event!!.action){
+            MotionEvent.ACTION_DOWN -> {player.setPosition(event.x.toDouble(), event.y.toDouble())
+                return true}
+            MotionEvent.ACTION_MOVE -> {
+                player.setPosition(event.x.toDouble(), event.y.toDouble())
+                return true
+            }
+        }
+        return super.onTouchEvent(event)
+    }
+
     override fun surfaceCreated(p0: SurfaceHolder) {
         gameLoop.startLoop()
     }
@@ -33,6 +50,7 @@ class Game(context: Context?) : SurfaceView(context) , SurfaceHolder.Callback{
         super.draw(canvas)
         drawUPS(canvas)
         drawFPS(canvas)
+        player.draw(canvas)
     }
      fun drawUPS(canvas: Canvas){
         val averageUPS: String = gameLoop.getAverageUPS().toString()
@@ -52,6 +70,6 @@ class Game(context: Context?) : SurfaceView(context) , SurfaceHolder.Callback{
     }
 
     fun update() {
-
+    player.update()
     }
 }
